@@ -1,0 +1,331 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.7">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">import React, { useState, useEffect } from 'react';</p>
+<p class="p1">import { Calendar, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';</p>
+<p class="p2"><br></p>
+<p class="p1">const HabitTracker = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const initializeData = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const initial = {};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>for (let i = 1; i &lt;= 30; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>initial[i] = {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>exercise: false,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>mindfulness: false,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>pelvicFloor: false,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>fascia: false,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>dbt: false,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>eatingGreen: 2,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>protein: 3,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>entered: false</p>
+<p class="p1"><span class="Apple-converted-space">      </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return initial;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const [view, setView] = useState('calendar');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const [selectedDay, setSelectedDay] = useState(1);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const [habitData, setHabitData] = useState(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const saved = localStorage.getItem('habitTrackerData');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return saved ? JSON.parse(saved) : initializeData();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>useEffect(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>localStorage.setItem('habitTrackerData', JSON.stringify(habitData));</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}, [habitData]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const calculateDayTotal = (day) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const data = habitData[day];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let total = 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (data.exercise) total += 1;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (data.mindfulness) total += 1;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (data.pelvicFloor) total += 1;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (data.fascia) total += 1;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (data.dbt) total += 1;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>total += data.eatingGreen;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>total += data.protein;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return total;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const calculateTotalScore = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let total = 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>for (let i = 1; i &lt;= 30; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>total += calculateDayTotal(i);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return total;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const updateHabit = (day, habit, value) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>setHabitData(prev =&gt; ({</p>
+<p class="p1"><span class="Apple-converted-space">      </span>...prev,</p>
+<p class="p1"><span class="Apple-converted-space">      </span>[day]: {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>...prev[day],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>[habit]: value,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>entered: true</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}));</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const handleReset = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const newData = {};</p>
+<p class="p1"><span class="Apple-converted-space">      </span>for (let i = 1; i &lt;= 30; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>newData[i] = {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>exercise: false,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>mindfulness: false,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>pelvicFloor: false,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>fascia: false,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>dbt: false,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>eatingGreen: 0,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>protein: 0,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>entered: false</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>setHabitData(newData);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>localStorage.setItem('habitTrackerData', JSON.stringify(newData));</p>
+<p class="p1"><span class="Apple-converted-space">      </span>setSelectedDay(1);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>setView('calendar');</p>
+<p class="p1"><span class="Apple-converted-space">      </span>alert('Tracker has been reset!');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (view === 'calendar') {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="max-w-6xl mx-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="bg-white rounded-xl shadow-lg p-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="flex justify-between items-center mb-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;h1 className="text-3xl font-bold text-gray-800"&gt;30-Day Habit Tracker&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">                </span>type="button"</p>
+<p class="p1"><span class="Apple-converted-space">                </span>onClick={handleReset}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition cursor-pointer"</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;RotateCcw size={18} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>Reset</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="mb-6 p-4 bg-indigo-50 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="text-2xl font-bold text-indigo-700"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>Total Score: {calculateTotalScore()} / 300</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="text-sm text-gray-600 mt-1"&gt;Daily Goal: 10 points | Perfect Score: 300&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="grid grid-cols-5 gap-4 mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{[...Array(30)].map((_, i) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const day = i + 1;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const total = calculateDayTotal(day);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const isEntered = habitData[day].entered;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const bgColor = !isEntered ? 'bg-gray-300' : total &gt;= 7 ? 'bg-green-500' : 'bg-orange-400';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>key={day}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>type="button"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>onClick={() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>setSelectedDay(day);</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>setView('day');</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className={`${bgColor} text-white rounded-lg p-4 hover:opacity-80 transition shadow-md cursor-pointer`}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div className="text-sm font-semibold"&gt;Day {day}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div className="text-2xl font-bold"&gt;{total}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>);</p>
+<p class="p1"><span class="Apple-converted-space">              </span>})}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="mt-6 flex gap-4 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="flex items-center gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="w-4 h-4 bg-green-500 rounded"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span&gt;7+ points&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="flex items-center gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="w-4 h-4 bg-orange-400 rounded"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span&gt;&amp;lt;7 points&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="flex items-center gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="w-4 h-4 bg-gray-300 rounded"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span&gt;Not entered&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="mt-8 pt-6 border-t"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">                </span>type="button"</p>
+<p class="p1"><span class="Apple-converted-space">                </span>onClick={handleReset}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>className="w-full px-6 py-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition cursor-pointer font-semibold text-lg"</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>🔄 Reset All Data</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Day View</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const data = habitData[selectedDay];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const total = calculateDayTotal(selectedDay);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div className="max-w-3xl mx-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="bg-white rounded-xl shadow-lg p-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="flex justify-between items-center mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">              </span>type="button"</p>
+<p class="p1"><span class="Apple-converted-space">              </span>onClick={() =&gt; setView('calendar')}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>className="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 cursor-pointer"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;Calendar size={20} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>Back to Calendar</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="text-xl font-bold text-gray-800"&gt;Day {selectedDay}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="mb-6 p-4 bg-indigo-50 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="text-2xl font-bold text-indigo-700"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>Today's Score: {total} / 10</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="space-y-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{/* Yes/No Habits */}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;HabitCheckbox</p>
+<p class="p1"><span class="Apple-converted-space">              </span>label="Exercise"</p>
+<p class="p1"><span class="Apple-converted-space">              </span>checked={data.exercise}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>onChange={(val) =&gt; updateHabit(selectedDay, 'exercise', val)}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;HabitCheckbox</p>
+<p class="p1"><span class="Apple-converted-space">              </span>label="Mindfulness or Yoga"</p>
+<p class="p1"><span class="Apple-converted-space">              </span>checked={data.mindfulness}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>onChange={(val) =&gt; updateHabit(selectedDay, 'mindfulness', val)}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;HabitCheckbox</p>
+<p class="p1"><span class="Apple-converted-space">              </span>label="Pelvic Floor and Core"</p>
+<p class="p1"><span class="Apple-converted-space">              </span>checked={data.pelvicFloor}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>onChange={(val) =&gt; updateHabit(selectedDay, 'pelvicFloor', val)}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;HabitCheckbox</p>
+<p class="p1"><span class="Apple-converted-space">              </span>label="Fascia and Stretching"</p>
+<p class="p1"><span class="Apple-converted-space">              </span>checked={data.fascia}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>onChange={(val) =&gt; updateHabit(selectedDay, 'fascia', val)}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;HabitCheckbox</p>
+<p class="p1"><span class="Apple-converted-space">              </span>label="DBT Review for 10 Minutes"</p>
+<p class="p1"><span class="Apple-converted-space">              </span>checked={data.dbt}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>onChange={(val) =&gt; updateHabit(selectedDay, 'dbt', val)}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>/&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>{/* Eating Green */}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="border-t pt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="font-semibold text-gray-700 mb-3"&gt;Eating Green (Max 2 points)&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="flex gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{[</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>{ val: 2, label: 'Under 200 cal (2)' },</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>{ val: 1, label: '200 cal over (1)' },</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>{ val: 0, label: '200+ over (0)' }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>].map(({ val, label }) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>key={val}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>type="button"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>onClick={() =&gt; updateHabit(selectedDay, 'eatingGreen', val)}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className={`px-6 py-3 rounded-lg font-semibold transition cursor-pointer ${</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>data.eatingGreen === val</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>? 'bg-indigo-600 text-white'</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>: 'bg-gray-200 text-gray-700 hover:bg-gray-300'</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}`}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{label}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>{/* Protein */}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="border-t pt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="font-semibold text-gray-700 mb-3"&gt;Protein Levels (Max 3 points)&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="flex gap-3 flex-wrap"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{[</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>{ val: 3, label: '90g+ (3)' },</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>{ val: 2, label: '80-89g (2)' },</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>{ val: 1, label: '70-79g (1)' },</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>{ val: 0, label: '&lt;70g (0)' }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>].map(({ val, label }) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>key={val}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>type="button"</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>onClick={() =&gt; updateHabit(selectedDay, 'protein', val)}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className={`px-6 py-3 rounded-lg font-semibold transition cursor-pointer ${</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>data.protein === val</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>? 'bg-indigo-600 text-white'</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>: 'bg-gray-200 text-gray-700 hover:bg-gray-300'</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}`}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{label}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>{/* Navigation */}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="flex justify-between mt-8 pt-6 border-t"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">              </span>type="button"</p>
+<p class="p1"><span class="Apple-converted-space">              </span>onClick={() =&gt; setSelectedDay(Math.max(1, selectedDay - 1))}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>disabled={selectedDay === 1}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;ChevronLeft size={20} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>Previous Day</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">              </span>type="button"</p>
+<p class="p1"><span class="Apple-converted-space">              </span>onClick={() =&gt; setSelectedDay(Math.min(30, selectedDay + 1))}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>disabled={selectedDay === 30}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>Next Day</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;ChevronRight size={20} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>);</p>
+<p class="p1">};</p>
+<p class="p2"><br></p>
+<p class="p1">const HabitCheckbox = ({ label, checked, onChange }) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;span className="font-medium text-gray-700"&gt;{label}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">      </span>type="button"</p>
+<p class="p1"><span class="Apple-converted-space">      </span>onClick={() =&gt; onChange(!checked)}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>className={`w-12 h-12 rounded-lg font-bold text-lg transition cursor-pointer ${</p>
+<p class="p1"><span class="Apple-converted-space">        </span>checked</p>
+<p class="p1"><span class="Apple-converted-space">          </span>? 'bg-green-500 text-white'</p>
+<p class="p1"><span class="Apple-converted-space">          </span>: 'bg-gray-300 text-gray-600'</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}`}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{checked ? '✓' : '○'}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">);</p>
+<p class="p2"><br></p>
+<p class="p1">export default HabitTracker;</p>
+</body>
+</html>
