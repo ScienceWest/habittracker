@@ -1,1 +1,315 @@
+import React, { useState, useEffect } from 'react';
+import { Calendar, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 
+const HabitTracker = () => {
+  const initializeData = () => {
+    const initial = {};
+    for (let i = 1; i <= 30; i++) {
+      initial[i] = {
+        exercise: false,
+        mindfulness: false,
+        pelvicFloor: false,
+        fascia: false,
+        dbt: false,
+        eatingGreen: 2,
+        protein: 3,
+        entered: false
+      };
+    }
+    return initial;
+  };
+
+  const [view, setView] = useState('calendar');
+  const [selectedDay, setSelectedDay] = useState(1);
+  const [habitData, setHabitData] = useState(() => {
+    const saved = localStorage.getItem('habitTrackerData');
+    return saved ? JSON.parse(saved) : initializeData();
+  });
+
+  useEffect(() => {
+    localStorage.setItem('habitTrackerData', JSON.stringify(habitData));
+  }, [habitData]);
+
+  const calculateDayTotal = (day) => {
+    const data = habitData[day];
+    let total = 0;
+    if (data.exercise) total += 1;
+    if (data.mindfulness) total += 1;
+    if (data.pelvicFloor) total += 1;
+    if (data.fascia) total += 1;
+    if (data.dbt) total += 1;
+    total += data.eatingGreen;
+    total += data.protein;
+    return total;
+  };
+
+  const calculateTotalScore = () => {
+    let total = 0;
+    for (let i = 1; i <= 30; i++) {
+      total += calculateDayTotal(i);
+    }
+    return total;
+  };
+
+  const updateHabit = (day, habit, value) => {
+    setHabitData(prev => ({
+      ...prev,
+      [day]: {
+        ...prev[day],
+        [habit]: value,
+        entered: true
+      }
+    }));
+  };
+
+  const handleReset = () => {
+    if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+      const newData = {};
+      for (let i = 1; i <= 30; i++) {
+        newData[i] = {
+          exercise: false,
+          mindfulness: false,
+          pelvicFloor: false,
+          fascia: false,
+          dbt: false,
+          eatingGreen: 0,
+          protein: 0,
+          entered: false
+        };
+      }
+      setHabitData(newData);
+      localStorage.setItem('habitTrackerData', JSON.stringify(newData));
+      setSelectedDay(1);
+      setView('calendar');
+      alert('Tracker has been reset!');
+    }
+  };
+
+  if (view === 'calendar') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-white rounded-xl shadow-lg p-8">
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-3xl font-bold text-gray-800">30-Day Habit Tracker</h1>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition cursor-pointer"
+              >
+                <RotateCcw size={18} />
+                Reset
+              </button>
+            </div>
+            
+            <div className="mb-6 p-4 bg-indigo-50 rounded-lg">
+              <div className="text-2xl font-bold text-indigo-700">
+                Total Score: {calculateTotalScore()} / 300
+              </div>
+              <div className="text-sm text-gray-600 mt-1">Daily Goal: 10 points | Perfect Score: 300</div>
+            </div>
+
+            <div className="grid grid-cols-5 gap-4 mb-4">
+              {[...Array(30)].map((_, i) => {
+                const day = i + 1;
+                const total = calculateDayTotal(day);
+                const isEntered = habitData[day].entered;
+                const bgColor = !isEntered ? 'bg-gray-300' : total >= 7 ? 'bg-green-500' : 'bg-orange-400';
+                return (
+                  <button
+                    key={day}
+                    type="button"
+                    onClick={() => {
+                      setSelectedDay(day);
+                      setView('day');
+                    }}
+                    className={`${bgColor} text-white rounded-lg p-4 hover:opacity-80 transition shadow-md cursor-pointer`}
+                  >
+                    <div className="text-sm font-semibold">Day {day}</div>
+                    <div className="text-2xl font-bold">{total}</div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 flex gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-green-500 rounded"></div>
+                <span>7+ points</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-orange-400 rounded"></div>
+                <span>&lt;7 points</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-gray-300 rounded"></div>
+                <span>Not entered</span>
+              </div>
+            </div>
+            
+            <div className="mt-8 pt-6 border-t">
+              <button
+                type="button"
+                onClick={handleReset}
+                className="w-full px-6 py-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition cursor-pointer font-semibold text-lg"
+              >
+                🔄 Reset All Data
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Day View
+  const data = habitData[selectedDay];
+  const total = calculateDayTotal(selectedDay);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          <div className="flex justify-between items-center mb-6">
+            <button
+              type="button"
+              onClick={() => setView('calendar')}
+              className="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 cursor-pointer"
+            >
+              <Calendar size={20} />
+              Back to Calendar
+            </button>
+            <div className="text-xl font-bold text-gray-800">Day {selectedDay}</div>
+          </div>
+
+          <div className="mb-6 p-4 bg-indigo-50 rounded-lg">
+            <div className="text-2xl font-bold text-indigo-700">
+              Today's Score: {total} / 10
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {/* Yes/No Habits */}
+            <HabitCheckbox
+              label="Exercise"
+              checked={data.exercise}
+              onChange={(val) => updateHabit(selectedDay, 'exercise', val)}
+            />
+            <HabitCheckbox
+              label="Mindfulness or Yoga"
+              checked={data.mindfulness}
+              onChange={(val) => updateHabit(selectedDay, 'mindfulness', val)}
+            />
+            <HabitCheckbox
+              label="Pelvic Floor and Core"
+              checked={data.pelvicFloor}
+              onChange={(val) => updateHabit(selectedDay, 'pelvicFloor', val)}
+            />
+            <HabitCheckbox
+              label="Hobbies"
+              checked={data.fascia}
+              onChange={(val) => updateHabit(selectedDay, 'fascia', val)}
+            />
+            <HabitCheckbox
+              label="25 minutes of Learning"
+              checked={data.dbt}
+              onChange={(val) => updateHabit(selectedDay, 'dbt', val)}
+            />
+
+            {/* Eating Green */}
+            <div className="border-t pt-4">
+              <div className="font-semibold text-gray-700 mb-3">Eating Green (Max 2 points)</div>
+              <div className="flex gap-3">
+                {[
+                  { val: 2, label: 'Under 200 cal (2)' },
+                  { val: 1, label: '200 cal over (1)' },
+                  { val: 0, label: '200+ over (0)' }
+                ].map(({ val, label }) => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => updateHabit(selectedDay, 'eatingGreen', val)}
+                    className={`px-6 py-3 rounded-lg font-semibold transition cursor-pointer ${
+                      data.eatingGreen === val
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Protein */}
+            <div className="border-t pt-4">
+              <div className="font-semibold text-gray-700 mb-3">Protein Levels (Max 3 points)</div>
+              <div className="flex gap-3 flex-wrap">
+                {[
+                  { val: 3, label: '90g+ (3)' },
+                  { val: 2, label: '80-89g (2)' },
+                  { val: 1, label: '70-79g (1)' },
+                  { val: 0, label: '<70g (0)' }
+                ].map(({ val, label }) => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => updateHabit(selectedDay, 'protein', val)}
+                    className={`px-6 py-3 rounded-lg font-semibold transition cursor-pointer ${
+                      data.protein === val
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex justify-between mt-8 pt-6 border-t">
+            <button
+              type="button"
+              onClick={() => setSelectedDay(Math.max(1, selectedDay - 1))}
+              disabled={selectedDay === 1}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+            >
+              <ChevronLeft size={20} />
+              Previous Day
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedDay(Math.min(30, selectedDay + 1))}
+              disabled={selectedDay === 30}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+            >
+              Next Day
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const HabitCheckbox = ({ label, checked, onChange }) => (
+  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+    <span className="font-medium text-gray-700">{label}</span>
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className={`w-12 h-12 rounded-lg font-bold text-lg transition cursor-pointer ${
+        checked
+          ? 'bg-green-500 text-white'
+          : 'bg-gray-300 text-gray-600'
+      }`}
+    >
+      {checked ? '✓' : '○'}
+    </button>
+  </div>
+);
+
+export default HabitTracker;
